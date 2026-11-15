@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA & Fullscreen Mobile Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ভূ-রাজনীতি সিমুলেটর">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="একাধিক দেশ ও অঞ্চল একত্রীকরণ করে আয়তন, জনসংখ্যা, জাতি, খনিজ ও কৃষি গবেষণা অ্যাপ">
+
+    <title>ভূ-রাজনৈতিক ও প্রশাসনিক একত্রীকরণ সিমুলেটর</title>
+
+    <!-- Dynamic PWA Manifest & Icon Placeholder (Populated via JS) -->
+    <link id="pwa-manifest" rel="manifest" href="">
+    <link id="apple-touch-icon" rel="apple-touch-icon" href="">
+
+    <!-- Google Fonts: Hind Siliguri & Noto Sans Bengali -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Hind Siliguri"', '"Noto Sans Bengali"', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e32',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+        }
+        /* Custom scrollbar for sleek look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+        .chip-selected {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        }
+        .install-pulse {
+            animation: pulseGlow 2.2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Sticky Navigation & Fullscreen / PWA Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800 px-3 sm:px-6 py-2.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold leading-tight bg-gradient-to-r from-sky-300 via-white to-indigo-200 bg-clip-text text-transparent">
+                        ভূ-রাজনৈতিক একত্রীকরণ সিমুলেটর
+                    </h1>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">আয়তন • জনসংখ্যা • জাতি • খনিজ • কৃষি ও কৌশলগত গবেষণা</p>
+                </div>
+            </div>
+
+            <!-- Action Controls: Install PWA + Fullscreen -->
+            <div class="flex items-center gap-2">
+                <!-- PWA Install Button -->
+                <button id="btn-install-pwa" onclick="triggerPwaInstall()" class="install-pulse flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs sm:text-sm font-semibold transition shadow-md shadow-emerald-600/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>অ্যাপ ইনস্টল</span>
+                </button>
+
+                <!-- Full Screen Toggle Button -->
+                <button id="btn-fullscreen" onclick="toggleFullScreen()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-95 text-sky-300 text-xs sm:text-sm font-semibold transition">
+                    <svg id="icon-fs-enter" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                    </svg>
+                    <svg id="icon-fs-exit" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"></path>
+                    </svg>
+                    <span id="text-fullscreen">ফুল স্ক্রিন</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Custom Toast / Notification Banner (Replaces alert()) -->
+    <div id="toast-box" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden max-w-md w-[92%] px-4 py-3 rounded-2xl bg-slate-800 border border-sky-500/40 text-slate-100 shadow-2xl flex items-center justify-between gap-3 transition-all">
+        <span id="toast-msg" class="text-sm font-medium"></span>
+        <button onclick="hideToast()" class="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 rounded-lg bg-slate-700/60">✕</button>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- LEFT PANEL: Entity Selection & Custom Region Creator (5 cols on desktop) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+
+            <!-- Selected Union Name & Quick Actions Card -->
+            <div class="glass-panel rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <label for="union-name" class="text-xs font-semibold uppercase tracking-wider text-sky-400">নতুন একত্রীকৃত রাষ্ট্রের নাম</label>
+                    <span id="selected-count-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                        ২টি নির্বাচিত
+                    </span>
+                </div>
+                <div class="flex gap-2">
+                    <input id="union-name" type="text" value="বৃহত্তর বঙ্গ ইউনিয়ন" placeholder="নতুন দেশের নাম লিখুন..." 
+                        class="w-full px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-sky-500 focus:outline-none text-white font-semibold text-base"
+                        oninput="runSimulation()">
+                    <button onclick="clearSelection()" title="সব মুছুন" class="px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold shrink-0 transition">
+                        রিসেট
+                    </button>
+                </div>
+
+                <!-- Preset Quick Scenarios -->
+                <div class="mt-3">
+                    <p class="text-[11px] text-slate-400 mb-1.5">দ্রুত গবেষণার নমুনা (Presets):</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="applyPreset(['bd', 'wb', 'tripura'], 'বৃহত্তর বঙ্গ ফেডারেশন')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition">
+                            🇧🇩 বঙ্গ একত্রীকরণ
+                        </button>
+                        <button onclick="applyPreset(['bd', 'rakhine', 'tripura'], 'বঙ্গোপসাগরীয় কৌশলগত ইউনিয়ন')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition">
+                            🌊 বাংলাদেশ + রাখাইন + ত্রিপুরা
+                        </button>
+                        <button onclick="applyPreset(['bd', 'nepal', 'bhutan'], 'হিমালয়-বঙ্গ অর্থনৈতিক জোট')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition">
+                            🏔️ বাংলাদেশ + নেপাল + ভুটান
+                        </button>
+                        <button onclick="applyPreset(['saudi', 'uae', 'turkey'], 'মধ্যপ্রাচ্য-আনাতোলিয়া শক্তি জোট')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition">
+                            🕌 সৌদি + আমিরাত + তুরস্ক
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Country / Region Selector Card -->
+            <div class="glass-panel rounded-2xl p-4 shadow-xl flex flex-col">
+                <div class="flex items-center justify-between gap-2 mb-3">
+                    <h2 class="text-sm font-bold text-slate-200 flex items-center gap-1.5">
+                        <span>🌍 দেশ ও অঞ্চল নির্বাচন করুন</span>
+                    </h2>
+                    <button onclick="toggleCustomModal(true)" class="text-xs px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow transition flex items-center gap-1">
+                        <span>+ নতুন অঞ্চল যোগ</span>
+                    </button>
+                </div>
+
+                <!-- Search & Category Filter -->
+                <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                    <input id="search-input" type="text" placeholder="দেশ বা অঞ্চল খুঁজুন (যেমন: বাংলাদেশ, রাখাইন, চীন...)" 
+                        oninput="renderCountryList()"
+                        class="flex-1 px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-sky-500 focus:outline-none text-sm text-white">
+                    <select id="region-filter" onchange="renderCountryList()" class="px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700 focus:border-sky-500 focus:outline-none text-xs text-slate-200">
+                        <option value="all">সব অঞ্চল</option>
+                        <option value="south_asia">দক্ষিণ এশিয়া ও বঙ্গোপসাগর</option>
+                        <option value="asia_me">পূর্ব এশিয়া ও মধ্যপ্রাচ্য</option>
+                        <option value="global">ইউরোপ, আমেরিকা ও অন্যান্য</option>
+                        <option value="custom">নিজস্ব যোগকৃত</option>
+                    </select>
+                </div>
+
+                <!-- Scrollable Entity Grid -->
+                <div id="country-grid" class="grid grid-cols-2 sm:grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Saved Scenarios List -->
+            <div class="glass-panel rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-bold text-slate-200">📁 সংরক্ষিত গবেষণা সমূহ</h3>
+                    <span id="saved-count" class="text-xs text-slate-400">০টি সেভ করা</span>
+                </div>
+                <div id="saved-scenarios-list" class="space-y-2 max-h-40 overflow-y-auto text-xs">
+                    <p class="text-slate-500 italic">এখনো কোনো গবেষণা সংরক্ষণ করা হয়নি।</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: Comprehensive Geopolitical Research Dashboard (7 cols on desktop) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+
+            <!-- Empty State Warning if < 1 selected -->
+            <div id="empty-state" class="hidden glass-panel rounded-2xl p-10 text-center">
+                <div class="text-4xl mb-3">🗺️</div>
+                <h3 class="text-lg font-bold text-slate-200">গবেষণা শুরু করতে কমপক্ষে ২টি দেশ বা অঞ্চল নির্বাচন করুন</h3>
+                <p class="text-sm text-slate-400 mt-1">বাম পাশের তালিকা থেকে একাধিক দেশ/অঞ্চলে ক্লিক করলে স্বয়ংক্রিয়ভাবে তাদের সম্মিলিত আয়তন, জনসংখ্যা, খনিজ ও কৃষি তথ্য বিশ্লেষণ শুরু হবে।</p>
+            </div>
+
+            <!-- Main Analytical Dashboard -->
+            <div id="dashboard-content" class="flex flex-col gap-4">
+
+                <!-- Union Header Banner & Export Actions -->
+                <div class="glass-panel rounded-2xl p-4 sm:p-5 border-l-4 border-l-sky-500 shadow-xl">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2 py-0.5 text-[11px] font-bold rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30">সম্মিলিত রাষ্ট্র প্রোফাইল</span>
+                                <span id="member-flags" class="text-base tracking-widest"></span>
+                            </div>
+                            <h2 id="dash-title" class="text-xl sm:text-2xl font-bold text-white mt-1">বৃহত্তর বঙ্গ ইউনিয়ন</h2>
+                            <p id="dash-members-text" class="text-xs sm:text-sm text-slate-300 mt-0.5"></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="saveScenario()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold text-amber-300 flex items-center gap-1.5 transition">
+                                <span>💾 সেভ করুন</span>
+                            </button>
+                            <button onclick="copyResearchReport()" class="px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-xs font-semibold text-white flex items-center gap-1.5 shadow transition">
+                                <span>📋 রিপোর্ট কপি</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Core Macro Metrics Grid (4 KPIs) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
+                        <!-- Area -->
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3">
+                            <span class="text-[11px] text-slate-400 block">মোট আয়তন</span>
+                            <span id="stat-area" class="text-base sm:text-lg font-bold text-sky-400 block mt-0.5">০ বর্গ কিমি</span>
+                            <span id="stat-area-rank" class="text-[11px] text-emerald-400 font-medium block mt-0.5">বিশ্ব র‍্যাঙ্ক: -</span>
+                        </div>
+                        <!-- Population -->
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3">
+                            <span class="text-[11px] text-slate-400 block">মোট জনসংখ্যা</span>
+                            <span id="stat-pop" class="text-base sm:text-lg font-bold text-indigo-400 block mt-0.5">০ কোটি</span>
+                            <span id="stat-pop-rank" class="text-[11px] text-emerald-400 font-medium block mt-0.5">বিশ্ব র‍্যাঙ্ক: -</span>
+                        </div>
+                        <!-- Density -->
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3">
+                            <span class="text-[11px] text-slate-400 block">জনসংখ্যার ঘনত্ব</span>
+                            <span id="stat-density" class="text-base sm:text-lg font-bold text-amber-400 block mt-0.5">০ /বর্গ কিমি</span>
+                            <span id="stat-density-note" class="text-[11px] text-slate-400 block mt-0.5">গড় ঘনত্ব</span>
+                        </div>
+                        <!-- GDP -->
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3">
+                            <span class="text-[11px] text-slate-400 block">সম্মিলিত জিডিপি (GDP)</span>
+                            <span id="stat-gdp" class="text-base sm:text-lg font-bold text-emerald-400 block mt-0.5">$০ বিলিয়ন</span>
+                            <span id="stat-percapita" class="text-[11px] text-slate-300 block mt-0.5">মাথাপিছু: $০</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demographics Section: Ethnicity & Religion -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Ethnic Composition -->
+                    <div class="glass-panel rounded-2xl p-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-sky-300 flex items-center gap-1.5 mb-3">
+                            <span>🧬 জাতিগত বিন্যাস (জনসংখ্যার অনুপাতে)</span>
+                        </h3>
+                        <div id="ethnicity-bars" class="space-y-2.5">
+                            <!-- Bars injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Religious Composition -->
+                    <div class="glass-panel rounded-2xl p-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-indigo-300 flex items-center gap-1.5 mb-3">
+                            <span>🕌 ধর্মীয় জনতাত্ত্বিক বিন্যাস</span>
+                        </h3>
+                        <div id="religion-bars" class="space-y-2.5">
+                            <!-- Bars injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Minerals & Agriculture Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Minerals & Natural Resources -->
+                    <div class="glass-panel rounded-2xl p-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-amber-300 flex items-center gap-1.5 mb-2.5">
+                            <span>⛏️ খনিজ ও জ্বালানি সম্পদ</span>
+                        </h3>
+                        <div id="minerals-tags" class="flex flex-wrap gap-1.5">
+                            <!-- Tags injected via JS -->
+                        </div>
+                        <p id="minerals-analysis" class="text-xs text-slate-300 mt-3 leading-relaxed bg-slate-900/60 p-2.5 rounded-xl border border-slate-800"></p>
+                    </div>
+
+                    <!-- Agriculture & Food Security -->
+                    <div class="glass-panel rounded-2xl p-4 shadow-xl">
+                        <h3 class="text-sm font-bold text-emerald-300 flex items-center gap-1.5 mb-2.5">
+                            <span>🌾 কৃষি, মৎস্য ও খাদ্য উৎপাদন</span>
+                        </h3>
+                        <div id="agri-tags" class="flex flex-wrap gap-1.5">
+                            <!-- Tags injected via JS -->
+                        </div>
+                        <p id="agri-analysis" class="text-xs text-slate-300 mt-3 leading-relaxed bg-slate-900/60 p-2.5 rounded-xl border border-slate-800"></p>
+                    </div>
+                </div>
+
+                <!-- Geopolitical & Strategic Synthesis -->
+                <div class="glass-panel rounded-2xl p-4 shadow-xl border border-indigo-500/20">
+                    <h3 class="text-sm font-bold text-rose-300 flex items-center gap-1.5 mb-2">
+                        <span>🧭 ভূ-রাজনৈতিক, ভৌগোলিক ও কৌশলগত বিশ্লেষণ</span>
+                    </h3>
+                    <div id="strategic-summary" class="text-xs sm:text-sm text-slate-200 space-y-2 leading-relaxed">
+                        <!-- Dynamic synthesis injected via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: Add Custom Region/Country -->
+    <div id="custom-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <h3 class="text-base font-bold text-white">➕ নতুন দেশ বা অঞ্চল যুক্ত করুন</h3>
+                <button onclick="toggleCustomModal(false)" class="text-slate-400 hover:text-white px-2 py-1 rounded-lg bg-slate-800">✕</button>
+            </div>
+            <form id="custom-region-form" onsubmit="handleAddCustomRegion(event)" class="space-y-3 text-xs sm:text-sm">
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2">
+                        <label class="block text-slate-300 mb-1">দেশ/অঞ্চলের নাম *</label>
+                        <input id="c-name" type="text" required placeholder="যেমন: আসাম / সিকিম" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-1">পতাকা/আইকন</label>
+                        <input id="c-flag" type="text" value="🏳️" maxlength="4" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-center text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-slate-300 mb-1">আয়তন (বর্গ কিমি) *</label>
+                        <input id="c-area" type="number" required min="1" placeholder="78438" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-1">জনসংখ্যা (কোটিতে) *</label>
+                        <input id="c-pop" type="number" step="0.01" required min="0.01" placeholder="3.56" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-1">জিডিপি ($ বিলিয়ন) *</label>
+                        <input id="c-gdp" type="number" step="0.1" required min="0.1" placeholder="65" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">প্রধান জাতিসমূহ (কমা দিয়ে শতাংশসহ লিখুন)</label>
+                    <input id="c-ethnicity" type="text" placeholder="যেমন: অসমীয়া:48, বাঙালি:30, বোড়ো:12, অন্যান্য:10" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">ধর্মীয় বিন্যাস (কমা দিয়ে শতাংশসহ লিখুন)</label>
+                    <input id="c-religion" type="text" placeholder="যেমন: হিন্দু:61, ইসলাম:34, খ্রিস্টান:4, অন্যান্য:1" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">খনিজ সম্পদ (কমা দিয়ে লিখুন)</label>
+                    <input id="c-minerals" type="text" placeholder="যেমন: অপরিশোধিত তেল, প্রাকৃতিক গ্যাস, কয়লা, চুনাপাথর" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">কৃষিজ ফসল (কমা দিয়ে লিখুন)</label>
+                    <input id="c-agri" type="text" placeholder="যেমন: চা, ধান, পাট, রেশম, কমলা" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <input id="c-coastal" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-sky-500">
+                    <label for="c-coastal" class="text-slate-300">সমুদ্র উপকূল বা সমুদ্রবন্দর সুবিধা আছে</label>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="toggleCustomModal(false)" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold">বাতিল</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold">সংরক্ষণ ও যুক্ত করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: PWA Install Instructions Fallback (For iOS / Manual Chrome Install) -->
+    <div id="install-guide-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-emerald-500/30 rounded-2xl max-w-md w-full p-5 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                <h3 class="text-base font-bold text-emerald-400">📲 হোম স্ক্রিনে অ্যাপ ইনস্টল নির্দেশিকা</h3>
+                <button onclick="document.getElementById('install-guide-modal').classList.add('hidden')" class="text-slate-400 hover:text-white px-2 py-1 rounded-lg bg-slate-800">✕</button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <p class="text-slate-300">ব্রাউজারের উপরের বার ছাড়াই একদম নেটিভ অ্যাপের মতো পুরো স্ক্রিন জুড়ে ব্যবহার করতে নিচের ধাপ অনুসরণ করুন:</p>
+                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                    <p class="font-bold text-sky-400 mb-1">🤖 Android (Chrome / Edge):</p>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-300">
+                        <li>প্রথমে অ্যাপটি ব্রাউজারের আলাদা ট্যাবে খুলুন।</li>
+                        <li>উপরে ডানদিকে <strong>তিন ডট (⋮)</strong> মেনুতে চাপ দিন।</li>
+                        <li><strong>"Install app"</strong> অথবা <strong>"Add to Home screen"</strong> নির্বাচন করুন।</li>
+                    </ol>
+                </div>
+                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                    <p class="font-bold text-amber-400 mb-1">🍎 iPhone / iPad (Safari):</p>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-300">
+                        <li>নিচের <strong>Share (⍐)</strong> আইকনে চাপ দিন।</li>
+                        <li>নিচে স্ক্রল করে <strong>"Add to Home Screen"</strong> নির্বাচন করুন।</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="document.getElementById('install-guide-modal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">বুঝেছি</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. PWA MANIFEST & SERVICE WORKER SETUP (SINGLE-FILE STANDALONE SUPPORT)
+           ========================================================================== */
+        let deferredInstallPrompt = null;
+
+        function initPWA() {
+            try {
+                // Generate crisp SVG icon as Data URI
+                const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#0ea5e9"/>
+                            <stop offset="100%" stop-color="#4f46e5"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="512" height="512" rx="110" fill="url(#g)"/>
+                    <circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-width="22"/>
+                    <ellipse cx="256" cy="256" rx="75" ry="150" fill="none" stroke="#ffffff" stroke-width="18"/>
+                    <line x1="106" y1="256" x2="406" y2="256" stroke="#ffffff" stroke-width="18"/>
+                </svg>`;
+                const iconDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon)));
+
+                document.getElementById('apple-touch-icon').href = iconDataUrl;
+
+                // Dynamic Web App Manifest
+                const manifest = {
+                    name: "ভূ-রাজনৈতিক ও প্রশাসনিক একত্রীকরণ সিমুলেটর",
+                    short_name: "ভূ-রাজনীতি",
+                    description: "একাধিক দেশ ও অঞ্চল একত্রীকরণ করে আয়তন, জনসংখ্যা, জাতি, খনিজ ও কৃষি গবেষণা অ্যাপ",
+                    start_url: window.location.href,
+                    display: "standalone",
+                    orientation: "any",
+                    background_color: "#090d16",
+                    theme_color: "#0f172a",
+                    icons: [
+                        { src: iconDataUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                        { src: iconDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                    ]
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                const manifestUrl = URL.createObjectURL(manifestBlob);
+                document.getElementById('pwa-manifest').setAttribute('href', manifestUrl);
+
+                // Inline Blob Service Worker for Offline Caching & Installability
+                if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                    const swCode = `
+                        const CACHE_NAME = 'geo-merger-v1';
+                        self.addEventListener('install', (e) => {
+                            self.skipWaiting();
+                        });
+                        self.addEventListener('activate', (e) => {
+                            e.waitUntil(clients.claim());
+                        });
+                        self.addEventListener('fetch', (e) => {
+                            e.respondWith(
+                                fetch(e.request).catch(() => caches.match(e.request))
+                            );
+                        });
+                    `;
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swUrl).catch(() => {});
+                }
+            } catch (err) {
+                console.warn('PWA init warning:', err);
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const btn = document.getElementById('btn-install-pwa');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        async function triggerPwaInstall() {
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const { outcome } = await deferredInstallPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    showToast('✅ অ্যাপটি সফলভাবে হোম স্ক্রিনে ইনস্টল হচ্ছে!');
+                }
+                deferredInstallPrompt = null;
+            } else {
+                // Show clean modal instructions for iOS Safari / embedded iframe / already installed
+                document.getElementById('install-guide-modal').classList.remove('hidden');
+            }
+        }
+
+        /* ==========================================================================
+           2. FULLSCREEN API HANDLER
+           ========================================================================== */
+        function toggleFullScreen() {
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(() => {
+                        showToast('ℹ️ ব্রাউজার প্রিভিউ ব্লক করলে উপরে ডানদিকে "Open in new tab" চাপুন।');
+                    });
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+        function updateFullscreenButton() {
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            document.getElementById('icon-fs-enter').classList.toggle('hidden', isFs);
+            document.getElementById('icon-fs-exit').classList.toggle('hidden', !isFs);
+            document.getElementById('text-fullscreen').textContent = isFs ? 'স্বাভাবিক স্ক্রিন' : 'ফুল স্ক্রিন';
+        }
+
+        /* ==========================================================================
+           3. GEOPOLITICAL DATASET (28 COUNTRIES & STRATEGIC REGIONS)
+           Population in Crores (1 Crore = 10 Million), Area in sq km, GDP in Billion USD
+           ========================================================================== */
+        const INITIAL_ENTITIES = [
+            {
+                id: 'bd', name: 'বাংলাদেশ', flag: '🇧🇩', category: 'south_asia',
+                area: 148460, pop: 17.35, gdp: 460, coastal: true,
+                ethnicity: { 'বাঙালি': 98.5, 'চাকমা ও পাহাড়ি জাতিগোষ্ঠী': 1.1, 'অন্যান্য': 0.4 },
+                religion: { 'ইসলাম': 91.0, 'হিন্দু': 7.9, 'বৌদ্ধ': 0.6, 'খ্রিস্টান ও অন্যান্য': 0.5 },
+                minerals: ['প্রাকৃতিক গ্যাস', 'উন্নতমানের বিটুমিনাস কয়লা', 'কঠিন শিলা', 'চুনাপাথর', 'সিলিকা বালি', 'সমুদ্রতলীয় খনিজ বালি'],
+                agri: ['ধান (চাল)', 'পাট (সোনালি আঁশ)', 'ইলিশ ও মিঠাপানির মাছ', 'আলু', 'চা', 'আম ও মৌসুমি ফল', 'সবজি'],
+                strategic: 'বঙ্গোপসাগরের শীর্ষে অবস্থিত অত্যন্ত কৌশলগত সমুদ্রবন্দর (চট্টগ্রাম, মোংলা, পায়রা, মাতারবাড়ী) এবং দক্ষিণ ও দক্ষিণ-পূর্ব এশিয়ার সংযোগস্থল।'
+            },
+            {
+                id: 'wb', name: 'পশ্চিমবঙ্গ (ভারত)', flag: '🏛️', category: 'south_asia',
+                area: 88752, pop: 10.25, gdp: 215, coastal: true,
+                ethnicity: { 'বাঙালি': 86.0, 'হিন্দি ও বিহারি': 7.5, 'সাঁওতাল ও আদিবাসী': 5.0, 'নেপালি/গোর্খা': 1.5 },
+                religion: { 'হিন্দু': 70.5, 'ইসলাম': 27.0, 'খ্রিস্টান': 0.7, 'বৌদ্ধ ও অন্যান্য': 1.8 },
+                minerals: ['কয়লা (রানীগঞ্জ)', 'ফায়ার ক্লে', 'চীনামাটি', 'ডলোমাইট', 'অ্যাপেটাইট'],
+                agri: ['ধান', 'পাট', 'দার্জিলিং চা', 'আলু', 'মাছ', 'আম ও লিচু'],
+                strategic: 'কলকাতা ও হলদিয়া বন্দর, শিলিগুড়ি করিডোর (চিকেনস নেক) এবং হিমালয় থেকে বঙ্গোপসাগর পর্যন্ত বিস্তৃত উর্বর গাঙ্গেয় বদ্বীপ।'
+            },
+            {
+                id: 'tripura', name: 'ত্রিপুরা (ভারত)', flag: '🌲', category: 'south_asia',
+                area: 10491, pop: 0.42, gdp: 10.5, coastal: false,
+                ethnicity: { 'বাঙালি': 66.0, 'ত্রিপুরী (ককবরক)': 29.0, 'রিয়াং ও চাকমা': 5.0 },
+                religion: { 'হিন্দু': 83.4, 'ইসলাম': 8.6, 'খ্রিস্টান': 4.4, 'বৌদ্ধ': 3.6 },
+                minerals: ['প্রাকৃতিক গ্যাস', 'প্লাস্টিক ক্লে', 'সিলিকা বালি'],
+                agri: ['প্রাকৃতিক রাবার', 'আনারস', 'ধান', 'বাঁশ', 'চা', 'কাঁঠাল'],
+                strategic: 'তিন দিক থেকে বাংলাদেশ বেষ্টিত ভূ-কৌশলগত অঞ্চল, যা উত্তর-পূর্ব ভারতের সাথে বঙ্গোপসাগরের ট্রানজিট সেতুবন্ধন।'
+            },
+            {
+                id: 'assam', name: 'আসাম ও বরাক উপত্যকা', flag: '🦏', category: 'south_asia',
+                area: 78438, pop: 3.62, gdp: 68, coastal: false,
+                ethnicity: { 'অসমীয়া': 48.3, 'বাঙালি': 29.5, 'বোড়ো ও কার্বি': 12.2, 'অন্যান্য জনজাতি': 10.0 },
+                religion: { 'হিন্দু': 61.5, 'ইসলাম': 34.2, 'খ্রিস্টান': 3.7, 'বৌদ্ধ ও অন্যান্য': 0.6 },
+                minerals: ['অপরিশোধিত পেট্রোলিয়াম তেল', 'প্রাকৃতিক গ্যাস', 'কয়লা', 'চুনাপাথর', 'গ্রানাইট'],
+                agri: ['আসাম চা', 'ধান', 'পাট', 'রেশম (মুগা সিল্ক)', 'সরিষা', 'বাঁশ'],
+                strategic: 'ব্রহ্মপুত্র ও বরাক নদী অববাহিকা এবং দক্ষিণ এশিয়ার প্রাচীনতম তেল ও প্রাকৃতিক গ্যাস সমৃদ্ধ অঞ্চল।'
+            },
+            {
+                id: 'rakhine', name: 'রাখাইন রাজ্য (আরাকান)', flag: '⚓', category: 'south_asia',
+                area: 36762, pop: 0.34, gdp: 4.8, coastal: true,
+                ethnicity: { 'রাখাইন (মগ)': 60.0, 'রোহিঙ্গা (বাঙালি বংশোদ্ভূত)': 33.0, 'চিন ও কামান': 7.0 },
+                religion: { 'বৌদ্ধ': 63.0, 'ইসলাম': 34.0, 'হিন্দু ও খ্রিস্টান': 3.0 },
+                minerals: ['অফশোর প্রাকৃতিক গ্যাস (শোয়ে গ্যাসক্ষেত্র)', 'অপরিশোধিত তেল', 'সামুদ্রিক মৎস্য ও খনিজ'],
+                agri: ['ধান', 'সামুদ্রিক চিংড়ি ও মাছ', 'নারিকেল', 'তামাক', 'কাঠ ও বাঁশ'],
+                strategic: 'বঙ্গোপসাগরের দীর্ঘ উপকূলরেখা এবং গভীর সমুদ্রবন্দর (চকপিউ/সিত্তে), যা দক্ষিণ এশিয়া ও দক্ষিণ-পূর্ব এশিয়ার স্থল-সমুদ্র সংযোগ।'
+            },
+            {
+                id: 'india', name: 'ভারত (সম্পূর্ণ)', flag: '🇮🇳', category: 'south_asia',
+                area: 3287263, pop: 144.17, gdp: 3940, coastal: true,
+                ethnicity: { 'ইন্দো-আর্য জাতিগোষ্ঠী': 72.0, 'দ্রাবিড় জাতিগোষ্ঠী': 25.0, 'মঙ্গোলয়েড ও আদিবাসী': 3.0 },
+                religion: { 'হিন্দু': 79.8, 'ইসলাম': 14.2, 'খ্রিস্টান': 2.3, 'শিখ ও বৌদ্ধ': 3.7 },
+                minerals: ['লৌহ আকরিক', 'কয়লা', 'বক্সাইট', 'ম্যাঙ্গানিজ', 'মাইকা', 'থোরিয়াম', 'হীরা'],
+                agri: ['ধান', 'গম', 'দুগ্ধ ও পশুপালন', 'তুলা', 'আখ', 'ডাল', 'মসলা ও চা'],
+                strategic: 'ভারত মহাসাগরের কেন্দ্রস্থলে অবস্থিত বিশাল অর্থনীতি, বৃহৎ শ্রমবাজার এবং মহাকাশ ও তথ্যপ্রযুক্তি শক্তি।'
+            },
+            {
+                id: 'pakistan', name: 'পাকিস্তান', flag: '🇵🇰', category: 'south_asia',
+                area: 881913, pop: 24.52, gdp: 375, coastal: true,
+                ethnicity: { 'পাঞ্জাবি': 44.7, 'পশতুন': 15.4, 'সিন্ধি': 14.1, 'সারাইকি ও বেলুচ': 15.8, 'অন্যান্য': 10.0 },
+                religion: { 'ইসলাম': 96.5, 'হিন্দু': 2.1, 'খ্রিস্টান ও অন্যান্য': 1.4 },
+                minerals: ['তামা ও স্বর্ণ (রেকো ডিক)', 'কয়লা (থর)', 'প্রাকৃতিক গ্যাস', 'রক সল্ট', 'ক্রোমাইট', 'মার্বেল'],
+                agri: ['গম', 'তুলা', 'ধান (বাসমতি)', 'আখ', 'আম ও কমলা', 'দুগ্ধ সম্পদ'],
+                strategic: 'আরব সাগরের গওয়াদর ও করাচি বন্দর, মধ্য এশিয়া ও চীনের সাথে স্থল করিডোর (CPEC) এবং সিন্ধু নদ অববাহিকা।'
+            },
+            {
+                id: 'myanmar', name: 'মিয়ানমার (সম্পূর্ণ)', flag: '🇲🇲', category: 'south_asia',
+                area: 676578, pop: 5.48, gdp: 64, coastal: true,
+                ethnicity: { 'বামার': 68.0, 'শান': 9.0, 'কারেন': 7.0, 'রাখাইন': 4.0, 'অন্যান্য': 12.0 },
+                religion: { 'বৌদ্ধ': 87.9, 'খ্রিস্টান': 6.2, 'ইসলাম': 4.3, 'অন্যান্য': 1.6 },
+                minerals: ['জেড পাথর ও রুবি', 'প্রাকৃতিক গ্যাস', 'টিন ও টাংস্টেন', 'তামা', 'বিরল মৃত্তিকা (Rare Earths)', 'সেগুন কাঠ'],
+                agri: ['ধান', 'ডাল ও শিম', 'তিল ও চীনাবাদাম', 'রাবার', 'সামুদ্রিক মাছ'],
+                strategic: 'দক্ষিণ এশিয়া, চীন এবং আসিয়ান (ASEAN) অঞ্চলের একমাত্র স্থল সংযোগকারী দেশ এবং বিশাল প্রাকৃতিক সম্পদ ভাণ্ডার।'
+            },
+            {
+                id: 'nepal', name: 'নেপাল', flag: '🇳🇵', category: 'south_asia',
+                area: 147516, pop: 3.12, gdp: 42, coastal: false,
+                ethnicity: { 'ক্ষেত্রী ও বাহুন': 28.8, 'মগর ও থারু': 13.7, 'তামাং ও নেওয়ার': 10.6, 'অন্যান্য': 46.9 },
+                religion: { 'হিন্দু': 81.2, 'বৌদ্ধ': 8.2, 'ইসলাম': 5.1, 'কিরাত ও খ্রিস্টান': 5.5 },
+                minerals: ['জলবিদ্যুৎ সম্ভাবনা (৮৩,০০০ মেগাওয়াট)', 'চুনাপাথর', 'ম্যাগনেসাইট', 'কোয়ার্টজ'],
+                agri: ['ধান', 'ভুট্টা', 'গম', 'এলাচ ও আদা', 'চা', 'পশুপালন'],
+                strategic: 'হিমালয়ের কোলে অবস্থিত বিশাল জলবিদ্যুৎ ও মিঠাপানির উৎস, যা সমতল অঞ্চলের শক্তির চাহিদা মেটাতে সক্ষম।'
+            },
+            {
+                id: 'bhutan', name: 'ভুটান', flag: '🇧🇹', category: 'south_asia',
+                area: 38394, pop: 0.08, gdp: 3.1, coastal: false,
+                ethnicity: { 'নগালোপ': 50.0, 'লোৎশাম্পা (নেপালি)': 35.0, 'শারচোপ ও অন্যান্য': 15.0 },
+                religion: { 'বৌদ্ধ': 74.8, 'হিন্দু': 22.6, 'খ্রিস্টান ও অন্যান্য': 2.6 },
+                minerals: ['জলবিদ্যুৎ (৩০,০০০ মেগাওয়াট)', 'ডলোমাইট', 'চুনাপাথর', 'জিপসাম', 'বনজ সম্পদ'],
+                agri: ['কমলা ও আপেল', 'এলাচ', 'লাল চাল', 'আলু', 'জৈব কৃষি পণ্য'],
+                strategic: 'বিশ্বের একমাত্র কার্বন-নেগেটিভ দেশ, বিশাল জলবিদ্যুৎ রপ্তানিকারক এবং পূর্ব হিমালয়ের কৌশলগত বাফার অঞ্চল।'
+            },
+            {
+                id: 'srilanka', name: 'শ্রীলঙ্কা', flag: '🇱🇰', category: 'south_asia',
+                area: 65610, pop: 2.21, gdp: 84, coastal: true,
+                ethnicity: { 'সিংহলি': 74.9, 'তামিল': 15.3, 'শ্রীলঙ্কান মুর (মুসলিম)': 9.3, 'অন্যান্য': 0.5 },
+                religion: { 'বৌদ্ধ': 70.2, 'হিন্দু': 12.6, 'ইসলাম': 9.7, 'খ্রিস্টান': 7.5 },
+                minerals: ['উন্নত গ্রাফাইট', 'ইলমেনাইট ও রুটাইল', 'নীলকান্তমণি ও রত্নপাথর', 'ফসফেট'],
+                agri: ['সিলন চা', 'নারিকেল', 'প্রাকৃতিক রাবার', 'দারুচিনি ও গোলমরিচ', 'ধান'],
+                strategic: 'ভারত মহাসাগরের প্রধান আন্তর্জাতিক সমুদ্র বাণিজ্য পথের (কলম্বো ও হাম্বানটোটা বন্দর) একদম কেন্দ্রবিন্দু।'
+            },
+            {
+                id: 'maldives', name: 'মালদ্বীপ', flag: '🇲🇻', category: 'south_asia',
+                area: 300, pop: 0.05, gdp: 7.0, coastal: true,
+                ethnicity: { 'দিবেহি': 98.0, 'অন্যান্য': 2.0 },
+                religion: { 'ইসলাম': 99.0, 'অন্যান্য': 1.0 },
+                minerals: ['সামুদ্রিক অর্থনৈতিক অঞ্চল (EEZ)', 'প্রবাল ও সামুদ্রিক সম্পদ'],
+                agri: ['টুনা মাছ ও সামুদ্রিক মৎস্য', 'নারিকেল', 'কলা ও পেঁপে'],
+                strategic: 'ভারত মহাসাগরের পশ্চিমাংশের অত্যন্ত গুরুত্বপূর্ণ সামুদ্রিক বাণিজ্য রুট নিয়ন্ত্রণকারী দ্বীপরাষ্ট্র।'
+            },
+            {
+                id: 'china', name: 'চীন', flag: '🇨🇳', category: 'asia_me',
+                area: 9596961, pop: 140.97, gdp: 18530, coastal: true,
+                ethnicity: { 'হান চাইনিজ': 91.1, 'ঝুয়াং, উইঘুর, হুই ও তিব্বতি': 8.9 },
+                religion: { 'লোকধর্ম ও ধর্মনিরপেক্ষ': 73.5, 'বৌদ্ধ': 15.8, 'খ্রিস্টান': 5.1, 'ইসলাম': 2.5, 'তাওবাদ': 3.1 },
+                minerals: ['বিরল মৃত্তিকা (Rare Earths - বিশ্বসেরা)', 'কয়লা', 'লৌহ আকরিক', 'স্বর্ণ', 'লিথিয়াম', 'টাংস্টেন'],
+                agri: ['ধান', 'গম', 'ভুট্টা', 'চা', 'তুলা', 'শাকসবজি ও ফল', 'মৎস্য চাষ'],
+                strategic: 'বিশ্বের দ্বিতীয় বৃহত্তম অর্থনীতি, সর্ববৃহৎ শিল্প উৎপাদন কেন্দ্র এবং বেল্ট অ্যান্ড রোড (BRI) অবকাঠামো শক্তি।'
+            },
+            {
+                id: 'japan', name: 'জাপান', flag: '🇯🇵', category: 'asia_me',
+                area: 377975, pop: 12.37, gdp: 4110, coastal: true,
+                ethnicity: { 'জাপানি': 97.5, 'কোরিয়ান ও চাইনিজ': 1.5, 'অন্যান্য': 1.0 },
+                religion: { 'শিন্তো ও বৌদ্ধ': 84.0, 'খ্রিস্টান ও অন্যান্য': 16.0 },
+                minerals: ['আয়োডিন', 'সমুদ্রতলীয় মিথেন হাইড্রেট', 'চুনাপাথর', 'উচ্চপ্রযুক্তি পুনর্ব্যবহারযোগ্য ধাতু'],
+                agri: ['উন্নত মানের চাল', 'সামুদ্রিক মৎস্য', 'সবুজ চা', 'আপেল ও কমলা'],
+                strategic: 'প্রশান্ত মহাসাগরীয় উচ্চপ্রযুক্তি, রোবোটিক্স, সেমিকন্ডাক্টর এবং সামুদ্রিক নৌ-শক্তির অন্যতম প্রধান কেন্দ্র।'
+            },
+            {
+                id: 'south_korea', name: 'দক্ষিণ কোরিয়া', flag: '🇰🇷', category: 'asia_me',
+                area: 100210, pop: 5.17, gdp: 1760, coastal: true,
+                ethnicity: { 'কোরিয়ান': 96.0, 'অন্যান্য': 4.0 },
+                religion: { 'ধর্মনিরপেক্ষ': 56.0, 'খ্রিস্টান': 27.6, 'বৌদ্ধ': 15.5, 'অন্যান্য': 0.9 },
+                minerals: ['টাংস্টেন', 'গ্রাফাইট', 'মলিবডেনাম', 'চুনাপাথর'],
+                agri: ['ধান', 'জিনসেং', 'সামুদ্রিক শৈবাল ও মাছ', 'সবজি'],
+                strategic: 'বিশ্বের অন্যতম শীর্ষ সেমিকন্ডাক্টর, জাহাজ নির্মাণ, ইলেকট্রনিক্স ও অটোমোবাইল উৎপাদনকারী দেশ।'
+            },
+            {
+                id: 'saudi', name: 'সৌদি আরব', flag: '🇸🇦', category: 'asia_me',
+                area: 2149690, pop: 3.74, gdp: 1110, coastal: true,
+                ethnicity: { 'আরব': 90.0, 'আফ্রো-এশীয় ও প্রবাসী': 10.0 },
+                religion: { 'ইসলাম': 97.0, 'অন্যান্য': 3.0 },
+                minerals: ['অপরিশোধিত খনিজ তেল (বিশ্বের অন্যতম বৃহৎ)', 'প্রাকৃতিক গ্যাস', 'স্বর্ণ', 'ফসফেট', 'তামা ও বক্সাইট'],
+                agri: ['খেজুর', 'দুগ্ধ ও পোল্ট্রি', 'গম', 'গ্রিনহাউস সবজি'],
+                strategic: 'লোহিত সাগর ও পারস্য উপসাগরের মধ্যবর্তী জ্বালানি পরাশক্তি এবং মুসলিম বিশ্বের প্রধান আধ্যাত্মিক কেন্দ্র।'
+            },
+            {
+                id: 'uae', name: 'সংযুক্ত আরব আমিরাত', flag: '🇦🇪', category: 'asia_me',
+                area: 83600, pop: 1.02, gdp: 537, coastal: true,
+                ethnicity: { 'আমিরাতি আরব': 12.0, 'দক্ষিণ এশীয় প্রবাসী': 59.0, 'অন্যান্য আরব ও পশ্চিমা': 29.0 },
+                religion: { 'ইসলাম': 76.0, 'খ্রিস্টান': 13.0, 'হিন্দু ও বৌদ্ধ': 11.0 },
+                minerals: ['অপরিশোধিত তেল', 'প্রাকৃতিক গ্যাস', 'অ্যালুমিনিয়াম স্মেল্টিং'],
+                agri: ['খেজুর', 'হাইড্রোপনিক সবজি', 'সামুদ্রিক মাছ'],
+                strategic: 'হরমুজ প্রণালীর পাশে অবস্থিত বৈশ্বিক বাণিজ্য, বিমান চলাচল (দুবাই/আবুধাবি) এবং আর্থিক হাব।'
+            },
+            {
+                id: 'turkey', name: 'তুরস্ক', flag: '🇹🇷', category: 'asia_me',
+                area: 783562, pop: 8.58, gdp: 1150, coastal: true,
+                ethnicity: { 'তুর্কি': 75.0, 'কুর্দি': 18.0, 'অন্যান্য': 7.0 },
+                religion: { 'ইসলাম': 98.0, 'খ্রিস্টান ও অন্যান্য': 2.0 },
+                minerals: ['বোরন (বিশ্বের ৭০% মজুদ)', 'ক্রোমিয়াম', 'মার্বেল', 'স্বর্ণ', 'কয়লা', 'তামা'],
+                agri: ['হ্যাজেলনাট (বিশ্বসেরা)', 'গম', 'ডুমুর ও এপ্রিকট', 'তুলা', 'জলপাই', 'চা'],
+                strategic: 'ইউরোপ ও এশিয়ার সংযোগস্থল, বসফরাস প্রণালী নিয়ন্ত্রণকারী এবং শক্তিশালী প্রতিরক্ষা ও শিল্প উৎপাদক।'
+            },
+            {
+                id: 'iran', name: 'ইরান', flag: '🇮🇷', category: 'asia_me',
+                area: 1648195, pop: 8.95, gdp: 430, coastal: true,
+                ethnicity: { 'পার্সিয়ান': 61.0, 'আজেরি': 16.0, 'কুর্দি': 10.0, 'লুর ও বেলুচ': 13.0 },
+                religion: { 'ইসলাম': 99.4, 'খ্রিস্টান, ইহুদি ও জরথুস্ট্রিয়ান': 0.6 },
+                minerals: ['প্রাকৃতিক গ্যাস (বিশ্বের ২য় বৃহত্তম)', 'খনিজ তেল', 'তামা', 'লৌহ আকরিক', 'দস্তা ও সিসা', 'জাফরান'],
+                agri: ['পেস্তা বাদাম', 'জাফরান (বিশ্বের ৯০%)', 'গম', 'খেজুর', 'ডালিম ও আপেল'],
+                strategic: 'পারস্য উপসাগর, হরমুজ প্রণালী ও কাস্পিয়ান সাগরের মধ্যবর্তী বিশাল জ্বালানি ও ভূ-কৌশলগত সেতুবন্ধন।'
+            },
+            {
+                id: 'malaysia', name: 'মালয়েশিয়া', flag: '🇲🇾', category: 'asia_me',
+                area: 330803, pop: 3.45, gdp: 445, coastal: true,
+                ethnicity: { 'মালয় ও ভূমিপুত্র': 69.8, 'চাইনিজ': 22.4, 'ভারতীয় ও তামিল': 6.8, 'অন্যান্য': 1.0 },
+                religion: { 'ইসলাম': 63.5, 'বৌদ্ধ': 18.7, 'খ্রিস্টান': 9.1, 'হিন্দু ও অন্যান্য': 8.7 },
+                minerals: ['টিন', 'অপরিশোধিত তেল', 'প্রাকৃতিক গ্যাস', 'বক্সাইট', 'তামা'],
+                agri: ['পাম অয়েল (বিশ্বের অন্যতম শীর্ষ)', 'প্রাকৃতিক রাবার', 'কোকো', 'গোলমরিচ', 'ধান'],
+                strategic: 'মালাক্কা প্রণালীর তীরে অবস্থিত আসিয়ানের অন্যতম উন্নত সেমিকন্ডাক্টর, হালাল শিল্প ও বাণিজ্য কেন্দ্র।'
+            },
+            {
+                id: 'indonesia', name: 'ইন্দোনেশিয়া', flag: '🇮🇩', category: 'asia_me',
+                area: 1904569, pop: 27.98, gdp: 1475, coastal: true,
+                ethnicity: { 'জাভানিজ': 40.1, 'সুদানিজ': 15.5, 'মালয়, বাতাক ও মাদুরিজ': 15.0, 'অন্যান্য': 29.4 },
+                religion: { 'ইসলাম': 87.2, 'খ্রিস্টান': 9.9, 'হিন্দু': 1.7, 'বৌদ্ধ ও অন্যান্য': 1.2 },
+                minerals: ['নিকেল (বিশ্বের ১ নম্বর)', 'কয়লা', 'টিন', 'তামা ও স্বর্ণ', 'প্রাকৃতিক গ্যাস', 'বক্সাইট'],
+                agri: ['পাম অয়েল (বিশ্বসেরা)', 'ধান', 'কফি ও কোকো', 'মসলা (লবঙ্গ, জায়ফল)', 'রাবার', 'সামুদ্রিক মাছ'],
+                strategic: 'বিশ্বের বৃহত্তম দ্বীপপুঞ্জ রাষ্ট্র, ইন্দো-প্যাসিফিক সমুদ্রপথ এবং বৈদ্যুতিক গাড়ির ব্যাটারির প্রধান কাঁচামাল (নিকেল) সরবরাহকারী।'
+            },
+            {
+                id: 'uk', name: 'যুক্তরাজ্য (UK)', flag: '🇬🇧', category: 'global',
+                area: 243610, pop: 6.83, gdp: 3500, coastal: true,
+                ethnicity: { 'শ্বেতাঙ্গ ব্রিটিশ': 81.0, 'এশীয় ব্রিটিশ': 9.3, 'কৃষ্ণাঙ্গ ব্রিটিশ': 4.0, 'অন্যান্য': 5.7 },
+                religion: { 'খ্রিস্টান': 46.2, 'ধর্মনিরপেক্ষ': 37.2, 'ইসলাম': 6.5, 'হিন্দু ও অন্যান্য': 10.1 },
+                minerals: ['উত্তর সাগরের তেল ও গ্যাস', 'কয়লা', 'পটাশ', 'লবণ ও চুনাপাথর'],
+                agri: ['গম ও বার্লি', 'দুগ্ধ ও পশুপালন', 'আলু', 'সামুদ্রিক মাছ'],
+                strategic: 'বৈশ্বিক আর্থিক কেন্দ্র (লন্ডন), উচ্চশিক্ষা, গবেষণা ও উত্তর আটলান্টিক নৌ-শক্তি।'
+            },
+            {
+                id: 'germany', name: 'জার্মানি', flag: '🇩🇪', category: 'global',
+                area: 357592, pop: 8.45, gdp: 4590, coastal: true,
+                ethnicity: { 'জার্মান': 85.0, 'তুর্কি ও ইউরোপীয়': 10.0, 'অন্যান্য': 5.0 },
+                religion: { 'খ্রিস্টান': 49.0, 'ধর্মনিরপেক্ষ': 43.0, 'ইসলাম': 6.6, 'অন্যান্য': 1.4 },
+                minerals: ['লিগনাইট কয়লা', 'পটাশ', 'রক সল্ট', 'তামা ও নবায়নযোগ্য প্রযুক্তি'],
+                agri: ['গম ও বার্লি', 'আলু', 'দুগ্ধ ও মাংস', 'চিনি বিট', 'আঙুর'],
+                strategic: 'ইউরোপের বৃহত্তম অর্থনীতি, প্রকৌশল, অটোমোবাইল ও ভারী শিল্প উৎপাদনের মূল কেন্দ্র।'
+            },
+            {
+                id: 'usa', name: 'যুক্তরাষ্ট্র (USA)', flag: '🇺🇸', category: 'global',
+                area: 9833517, pop: 33.68, gdp: 28780, coastal: true,
+                ethnicity: { 'শ্বেতাঙ্গ আমেরিকান': 58.9, 'হিস্পানিক/ল্যাটিনো': 19.1, 'আফ্রিকান আমেরিকান': 13.6, 'এশীয় ও অন্যান্য': 8.4 },
+                religion: { 'খ্রিস্টান': 63.0, 'ধর্মনিরপেক্ষ': 29.0, 'ইহুদি, ইসলাম ও অন্যান্য': 8.0 },
+                minerals: ['শেল তেল ও প্রাকৃতিক গ্যাস (বিশ্বসেরা)', 'কয়লা', 'স্বর্ণ', 'তামা', 'লিথিয়াম', 'ইউরেনিয়াম'],
+                agri: ['ভুট্টা (বিশ্বসেরা)', 'সয়াবিন', 'গম', 'তুলা', 'গরুর মাংস ও দুগ্ধ', 'বাদাম ও ফল'],
+                strategic: 'আটলান্টিক ও প্রশান্ত মহাসাগরীয় দ্বিমুখী প্রবেশাধিকার, বিশ্বের বৃহত্তম অর্থনীতি, প্রযুক্তি ও সামরিক পরাশক্তি।'
+            },
+            {
+                id: 'russia', name: 'রাশিয়া', flag: '🇷🇺', category: 'global',
+                area: 17098246, pop: 14.42, gdp: 2060, coastal: true,
+                ethnicity: { 'রুশ': 80.9, 'তাতার, বাশকির ও চেচেন': 8.5, 'অন্যান্য': 10.6 },
+                religion: { 'অর্থোডক্স খ্রিস্টান': 71.0, 'ইসলাম': 10.0, 'ধর্মনিরপেক্ষ ও অন্যান্য': 19.0 },
+                minerals: ['প্রাকৃতিক গ্যাস (বিশ্বের ১ম)', 'অপরিশোধিত তেল', 'হীরা (বিশ্বসেরা)', 'প্যালাডিয়াম ও নিকেল', 'স্বর্ণ', 'কয়লা ও ইউরেনিয়াম'],
+                agri: ['গম (বিশ্বের শীর্ষ রপ্তানিকারক)', 'সূর্যমুখী তেল', 'বার্লি', 'আলু', 'বনজ কাঠ ও সামুদ্রিক মাছ'],
+                strategic: 'বিশ্বের বৃহত্তম আয়তনের দেশ, ইউরেশিয়ার বিশাল প্রাকৃতিক ও জ্বালানি সম্পদের আধার এবং আর্কটিক সমুদ্রপথের নিয়ন্ত্রক।'
+            },
+            {
+                id: 'brazil', name: 'ব্রাজিল', flag: '🇧🇷', category: 'global',
+                area: 8515767, pop: 21.76, gdp: 2330, coastal: true,
+                ethnicity: { 'পার্দো (মিশ্র)': 45.3, 'শ্বেতাঙ্গ': 43.5, 'কৃষ্ণাঙ্গ': 10.2, 'আদিবাসী ও এশীয়': 1.0 },
+                religion: { 'খ্রিস্টান (ক্যাথলিক ও প্রোটেস্ট্যান্ট)': 86.8, 'ধর্মনিরপেক্ষ ও অন্যান্য': 13.2 },
+                minerals: ['লৌহ আকরিক (বিশ্বসেরা)', 'নিওবিয়াম (বিশ্বের ৯০%)', 'বক্সাইট', 'স্বর্ণ', 'অফশোর তেল', 'ম্যাঙ্গানিজ'],
+                agri: ['সয়াবিন (বিশ্বসেরা)', 'কফি (বিশ্বসেরা)', 'আখ ও চিনি', 'কমলা', 'গরুর মাংস ও পোল্ট্রি', 'ভুট্টা'],
+                strategic: 'দক্ষিণ আমেরিকার বৃহত্তম শক্তি, আমাজন অববাহিকার মিঠাপানি ও জীববৈচিত্র্যের রক্ষক এবং বৈশ্বিক খাদ্য ভাণ্ডার।'
+            }
+        ];
+
+        // Global Rank Reference Lists for Realistic Comparison
+        const WORLD_AREA_BENCHMARKS = [
+            { name: 'রাশিয়া', area: 17098246 }, { name: 'কানাডা', area: 9984670 }, { name: 'যুক্তরাষ্ট্র', area: 9833517 },
+            { name: 'চীন', area: 9596961 }, { name: 'ব্রাজিল', area: 8515767 }, { name: 'অস্ট্রেলিয়া', area: 7692024 },
+            { name: 'ভারত', area: 3287263 }, { name: 'আর্জেন্টিনা', area: 2780400 }, { name: 'কাজাখস্তান', area: 2724900 },
+            { name: 'আলজেরিয়া', area: 2381741 }, { name: 'সৌদি আরব', area: 2149690 }, { name: 'ইন্দোনেশিয়া', area: 1904569 },
+            { name: 'ইরান', area: 1648195 }, { name: 'পাকিস্তান', area: 881913 }, { name: 'তুরস্ক', area: 783562 },
+            { name: 'মিয়ানমার', area: 676578 }, { name: 'ফ্রান্স', area: 551695 }, { name: 'থাইল্যান্ড', area: 513120 },
+            { name: 'জার্মানি', area: 357592 }, { name: 'মালয়েশিয়া', area: 330803 }, { name: 'যুক্তরাজ্য', area: 243610 },
+            { name: 'বাংলাদেশ', area: 148460 }, { name: 'নেপাল', area: 147516 }, { name: 'শ্রীলঙ্কা', area: 65610 }
+        ];
+
+        const WORLD_POP_BENCHMARKS = [
+            { name: 'ভারত', pop: 144.17 }, { name: 'চীন', pop: 140.97 }, { name: 'যুক্তরাষ্ট্র', pop: 33.68 },
+            { name: 'ইন্দোনেশিয়া', pop: 27.98 }, { name: 'পাকিস্তান', pop: 24.52 }, { name: 'নাইজেরিয়া', pop: 22.91 },
+            { name: 'ব্রাজিল', pop: 21.76 }, { name: 'বাংলাদেশ', pop: 17.35 }, { name: 'রাশিয়া', pop: 14.42 },
+            { name: 'মেক্সিকো', pop: 12.93 }, { name: 'জাপান', pop: 12.37 }, { name: 'ফিলিপাইন', pop: 11.91 },
+            { name: 'মিশর', pop: 11.45 }, { name: 'ভিয়েতনাম', pop: 9.94 }, { name: 'ইরান', pop: 8.95 },
+            { name: 'তুরস্ক', pop: 8.58 }, { name: 'জার্মানি', pop: 8.45 }, { name: 'যুক্তরাজ্য', pop: 6.83 }
+        ];
+
+        /* ==========================================================================
+           4. APPLICATION STATE & STORAGE MANAGEMENT
+           ========================================================================== */
+        let allEntities = [];
+        let selectedIds = ['bd', 'wb']; // Default initial merger: Bangladesh + West Bengal
+        let savedScenarios = [];
+
+        function loadState() {
+            try {
+                const customStored = JSON.parse(localStorage.getItem('geo_custom_entities') || '[]');
+                allEntities = [...INITIAL_ENTITIES, ...customStored];
+                savedScenarios = JSON.parse(localStorage.getItem('geo_saved_scenarios') || '[]');
+            } catch (e) {
+                allEntities = [...INITIAL_ENTITIES];
+                savedScenarios = [];
+            }
+        }
+
+        /* ==========================================================================
+           5. UI RENDERING & SELECTION LOGIC
+           ========================================================================== */
+        function toBengaliNumber(num) {
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return num.toString().replace(/\d/g, d => bnDigits[d]);
+        }
+
+        function formatArea(area) {
+            return toBengaliNumber(Math.round(area).toLocaleString('en-US')) + ' বর্গ কিমি';
+        }
+
+        function formatPop(popCrore) {
+            if (popCrore >= 1) {
+                return toBengaliNumber(popCrore.toFixed(2)) + ' কোটি';
+            } else {
+                const lakh = (popCrore * 100).toFixed(1);
+                return toBengaliNumber(lakh) + ' লক্ষ';
+            }
+        }
+
+        function renderCountryList() {
+            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            const filter = document.getElementById('region-filter').value;
+            const grid = document.getElementById('country-grid');
+            grid.innerHTML = '';
+
+            const filtered = allEntities.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query) ||
+                    item.minerals.some(m => m.toLowerCase().includes(query)) ||
+                    item.agri.some(a => a.toLowerCase().includes(query));
+                const matchesCat = filter === 'all' || item.category === filter;
+                return matchesSearch && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-slate-400 py-6">কোনো দেশ বা অঞ্চল পাওয়া যায়নি।</p>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const isSelected = selectedIds.includes(item.id);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => toggleEntity(item.id);
+                btn.className = `text-left p-2.5 rounded-xl border transition-all flex items-center justify-between gap-2 ${
+                    isSelected 
+                    ? 'chip-selected font-semibold' 
+                    : 'bg-slate-900/75 hover:bg-slate-800 border-slate-800 text-slate-200'
+                }`;
+
+                btn.innerHTML = `
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-base shrink-0">${item.flag}</span>
+                            <span class="text-xs sm:text-sm truncate">${item.name}</span>
+                        </div>
+                        <span class="text-[10px] ${isSelected ? 'text-sky-100' : 'text-slate-400'} block mt-0.5">
+                            ${toBengaliNumber(Math.round(item.area / 1000))}k কিমি² • ${toBengaliNumber(item.pop.toFixed(1))} কো.
+                        </span>
+                    </div>
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 ${
+                        isSelected ? 'bg-white text-blue-600 font-bold' : 'bg-slate-800 text-slate-400'
+                    }">
+                        ${isSelected ? '✓' : '+'}
+                    </span>
+                `;
+                grid.appendChild(btn);
+            });
+        }
+
+        function toggleEntity(id) {
+            if (selectedIds.includes(id)) {
+                selectedIds = selectedIds.filter(i => i !== id);
+            } else {
+                selectedIds.push(id);
+            }
+            renderCountryList();
+            runSimulation();
+        }
+
+        function clearSelection() {
+            selectedIds = [];
+            renderCountryList();
+            runSimulation();
+            showToast('নির্বাচন রিসেট করা হয়েছে।');
+        }
+
+        function applyPreset(ids, suggestedName) {
+            selectedIds = ids.filter(id => allEntities.some(e => e.id === id));
+            document.getElementById('union-name').value = suggestedName;
+            renderCountryList();
+            runSimulation();
+            showToast(`"${suggestedName}" প্রিসেট লোড হয়েছে।`);
+        }
+
+        /* ==========================================================================
+           6. GEOPOLITICAL MERGER CALCULATION & SYNTHESIS ENGINE
+           ========================================================================== */
+        function calculateGlobalRank(val, benchmarks, key) {
+            let rank = 1;
+            for (const b of benchmarks) {
+                if (b[key] > val) rank++;
+            }
+            return rank;
+        }
+
+        function runSimulation() {
+            const countBadge = document.getElementById('selected-count-badge');
+            countBadge.textContent = `${toBengaliNumber(selectedIds.length)}টি নির্বাচিত`;
+
+            const emptyState = document.getElementById('empty-state');
+            const dashContent = document.getElementById('dashboard-content');
+
+            if (selectedIds.length === 0) {
+                emptyState.classList.remove('hidden');
+                dashContent.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            dashContent.classList.remove('hidden');
+
+            const selectedEntities = selectedIds.map(id => allEntities.find(e => e.id === id)).filter(Boolean);
+            const unionName = document.getElementById('union-name').value.trim() || 'নতুন সম্মিলিত ইউনিয়ন';
+
+            // 1. Macro Sums
+            let totalArea = 0;
+            let totalPop = 0; // in crores
+            let totalGdp = 0; // in billion USD
+            let hasCoast = false;
+
+            const ethnicityTotals = {}; // absolute population in crores
+            const religionTotals = {};  // absolute population in crores
+            const mineralSet = new Set();
+            const agriSet = new Set();
+
+            selectedEntities.forEach(ent => {
+                totalArea += ent.area;
+                totalPop += ent.pop;
+                totalGdp += ent.gdp;
+                if (ent.coastal) hasCoast = true;
+
+                // Weighted Ethnicity
+                for (const [eth, pct] of Object.entries(ent.ethnicity)) {
+                    ethnicityTotals[eth] = (ethnicityTotals[eth] || 0) + (ent.pop * (pct / 100));
+                }
+
+                // Weighted Religion
+                for (const [rel, pct] of Object.entries(ent.religion)) {
+                    religionTotals[rel] = (religionTotals[rel] || 0) + (ent.pop * (pct / 100));
+                }
+
+                ent.minerals.forEach(m => mineralSet.add(m));
+                ent.agri.forEach(a => agriSet.add(a));
+            });
+
+            // Density (people per sq km): (pop in crore * 10,000,000) / area
+            const density = totalArea > 0 ? Math.round((totalPop * 10000000) / totalArea) : 0;
+            // Per capita GDP ($): (gdp in billion * 1,000,000,000) / (pop in crore * 10,000,000) = (gdp * 100) / pop
+            const perCapitaGdp = totalPop > 0 ? Math.round((totalGdp * 100) / totalPop) : 0;
+
+            const areaRank = calculateGlobalRank(totalArea, WORLD_AREA_BENCHMARKS, 'area');
+            const popRank = calculateGlobalRank(totalPop, WORLD_POP_BENCHMARKS, 'pop');
+
+            // Update Header & KPIs
+            document.getElementById('dash-title').textContent = unionName;
+            document.getElementById('member-flags').textContent = selectedEntities.map(e => e.flag).join(' ');
+            document.getElementById('dash-members-text').textContent = `অন্তর্ভুক্ত অঞ্চলসমূহ (${toBengaliNumber(selectedEntities.length)}): ` + selectedEntities.map(e => e.name).join(' + ');
+
+            document.getElementById('stat-area').textContent = formatArea(totalArea);
+            document.getElementById('stat-area-rank').textContent = `বিশ্ব অবস্থান: ~${toBengaliNumber(areaRank)}তম বৃহৎ`;
+
+            document.getElementById('stat-pop').textContent = formatPop(totalPop);
+            document.getElementById('stat-pop-rank').textContent = `বিশ্ব অবস্থান: ~${toBengaliNumber(popRank)}তম জনবহুল`;
+
+            document.getElementById('stat-density').textContent = `${toBengaliNumber(density.toLocaleString('en-US'))} জন`;
+            document.getElementById('stat-density-note').textContent = density > 800 ? 'অতি ঘনবসতিপূর্ণ' : (density > 300 ? 'মাঝারি-উচ্চ ঘনত্ব' : 'পর্যাপ্ত ভূমি-জনসংখ্যা অনুপাত');
+
+            document.getElementById('stat-gdp').textContent = `$${toBengaliNumber(Math.round(totalGdp).toLocaleString('en-US'))} বি.`;
+            document.getElementById('stat-percapita').textContent = `মাথাপিছু: $${toBengaliNumber(perCapitaGdp.toLocaleString('en-US'))}`;
+
+            // Render Weighted Ethnicity Bars
+            renderBreakdownBars('ethnicity-bars', ethnicityTotals, totalPop, 'from-sky-500 to-cyan-400');
+
+            // Render Weighted Religion Bars
+            renderBreakdownBars('religion-bars', religionTotals, totalPop, 'from-indigo-500 to-purple-400');
+
+            // Render Minerals
+            const minContainer = document.getElementById('minerals-tags');
+            minContainer.innerHTML = Array.from(mineralSet).map(m => 
+                `<span class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-medium">⛏️ ${m}</span>`
+            ).join('');
+
+            document.getElementById('minerals-analysis').textContent = 
+                `এই একত্রীকৃত রাষ্ট্রে মোট ${toBengaliNumber(mineralSet.size)} ধরনের গুরুত্বপূর্ণ খনিজ ও জ্বালানি সম্পদের সমন্বয় ঘটবে। ` +
+                (mineralSet.has('প্রাকৃতিক গ্যাস') || mineralSet.has('অপরিশোধিত তেল') || mineralSet.has('অপরিশোধিত খনিজ তেল (বিশ্বের অন্যতম বৃহৎ)')
+                    ? 'জ্বালানি নিরাপত্তার দিক থেকে এটি অত্যন্ত শক্তিশালী ও শিল্পায়নের জন্য স্বয়ংসম্পূর্ণ।' 
+                    : 'শিল্পায়নের জন্য খনিজ আমদানি ও নবায়নযোগ্য জ্বালানির সমন্বয় প্রয়োজন হবে।');
+
+            // Render Agriculture
+            const agriContainer = document.getElementById('agri-tags');
+            agriContainer.innerHTML = Array.from(agriSet).map(a => 
+                `<span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-xs font-medium">🌱 ${a}</span>`
+            ).join('');
+
+            document.getElementById('agri-analysis').textContent = 
+                `মোট ${toBengaliNumber(agriSet.size)}টি প্রধান কৃষিজ ও মৎস্য খাতের সমন্বয়ে খাদ্য উৎপাদন বৈচিত্র্যময় হবে। ` +
+                (totalArea / totalPop > 12000 
+                    ? 'বিশাল আবাদি জমির কারণে এটি একটি প্রধান খাদ্য রপ্তানিকারক রাষ্ট্রে পরিণত হতে পারে।' 
+                    : 'অধিক জনসংখ্যার খাদ্য চাহিদা মেটাতে আধুনিক ও নিবিড় কৃষি প্রযুক্তির সর্বোচ্চ ব্যবহার জরুরি।');
+
+            // Render Strategic Synthesis
+            const stratContainer = document.getElementById('strategic-summary');
+            const strategicPoints = selectedEntities.map(e => `<li><strong class="text-sky-300">${e.name}:</strong> ${e.strategic}</li>`).join('');
+            stratContainer.innerHTML = `
+                <div class="p-3 rounded-xl bg-slate-900/75 border border-slate-800 mb-2">
+                    <p class="font-semibold text-white">🌊 সামুদ্রিক ও বাণিজ্যিক অবস্থান: 
+                        <span class="${hasCoast ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${hasCoast ? 'উন্মুক্ত সমুদ্রবন্দর ও আন্তর্জাতিক নৌ-বাণিজ্য সুবিধা বিদ্যমান (Blue Economy সমৃদ্ধ)।' : 'স্থলবেষ্টিত রাষ্ট্র (Landlocked) — আন্তর্জাতিক বাণিজ্যের জন্য প্রতিবেশী দেশের ট্রানজিট প্রয়োজন।'}
+                        </span>
+                    </p>
+                </div>
+                <ul class="list-disc list-inside space-y-1.5 text-slate-300 text-xs">
+                    ${strategicPoints}
+                </ul>
+            `;
+        }
+
+        function renderBreakdownBars(containerId, totalsMap, totalPop, gradientClass) {
+            const container = document.getElementById(containerId);
+            const sorted = Object.entries(totalsMap)
+                .map(([label, absPop]) => ({ label, pct: totalPop > 0 ? (absPop / totalPop) * 100 : 0 }))
+                .sort((a, b) => b.pct - a.pct);
+
+            // Group minor ones (< 0.5%) if more than 6 items
+            const topItems = sorted.slice(0, 6);
+            container.innerHTML = topItems.map(item => `
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-200 font-medium">${item.label}</span>
+                        <span class="text-slate-300 font-bold">${toBengaliNumber(item.pct.toFixed(1))}%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                        <div class="h-full rounded-full bg-gradient-to-r ${gradientClass}" style="width: ${Math.min(100, item.pct)}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ==========================================================================
+           7. CUSTOM REGION MODAL & PARSER
+           ========================================================================== */
+        function toggleCustomModal(show) {
+            const modal = document.getElementById('custom-modal');
+            modal.classList.toggle('hidden', !show);
+        }
+
+        function parseKeyValueString(str, fallbackKey) {
+            const result = {};
+            if (!str || !str.trim()) {
+                result[fallbackKey] = 100;
+                return result;
+            }
+            const parts = str.split(',');
+            let sum = 0;
+            parts.forEach(p => {
+                const [k, v] = p.split(':').map(s => s.trim());
+                const num = parseFloat(v);
+                if (k && !isNaN(num) && num > 0) {
+                    result[k] = num;
+                    sum += num;
+                }
+            });
+            if (sum === 0) {
+                result[fallbackKey] = 100;
+            }
+            return result;
+        }
+
+        function handleAddCustomRegion(e) {
+            e.preventDefault();
+            const name = document.getElementById('c-name').value.trim();
+            const flag = document.getElementById('c-flag').value.trim() || '🏳️';
+            const area = parseFloat(document.getElementById('c-area').value);
+            const pop = parseFloat(document.getElementById('c-pop').value);
+            const gdp = parseFloat(document.getElementById('c-gdp').value);
+            const ethnicity = parseKeyValueString(document.getElementById('c-ethnicity').value, 'স্থানীয় জনগোষ্ঠী');
+            const religion = parseKeyValueString(document.getElementById('c-religion').value, 'প্রধান ধর্মাবলম্বী');
+            const minerals = document.getElementById('c-minerals').value.split(',').map(s => s.trim()).filter(Boolean);
+            const agri = document.getElementById('c-agri').value.split(',').map(s => s.trim()).filter(Boolean);
+            const coastal = document.getElementById('c-coastal').checked;
+
+            const newEntity = {
+                id: 'custom_' + Date.now(),
+                name,
+                flag,
+                category: 'custom',
+                area,
+                pop,
+                gdp,
+                coastal,
+                ethnicity,
+                religion,
+                minerals: minerals.length ? minerals : ['স্থানীয় প্রাকৃতিক সম্পদ'],
+                agri: agri.length ? agri : ['স্থানীয় কৃষিজ ফসল'],
+                strategic: `${name} একটি কৌশলগত অঞ্চল যার আয়তন ${formatArea(area)} এবং জনসংখ্যা ${formatPop(pop)}।`
+            };
+
+            allEntities.unshift(newEntity);
+            selectedIds.push(newEntity.id);
+
+            try {
+                const existingCustom = JSON.parse(localStorage.getItem('geo_custom_entities') || '[]');
+                existingCustom.unshift(newEntity);
+                localStorage.setItem('geo_custom_entities', JSON.stringify(existingCustom));
+            } catch (err) {}
+
+            document.getElementById('custom-region-form').reset();
+            toggleCustomModal(false);
+            renderCountryList();
+            runSimulation();
+            showToast(`✅ "${name}" সফলভাবে যুক্ত ও নির্বাচিত হয়েছে!`);
+        }
+
+        /* ==========================================================================
+           8. SAVE & EXPORT / COPY REPORT FEATURES
+           ========================================================================== */
+        function saveScenario() {
+            if (selectedIds.length === 0) return;
+            const unionName = document.getElementById('union-name').value.trim() || 'নামহীন ইউনিয়ন';
+            const selectedEntities = selectedIds.map(id => allEntities.find(e => e.id === id)).filter(Boolean);
+            const totalArea = selectedEntities.reduce((acc, e) => acc + e.area, 0);
+            const totalPop = selectedEntities.reduce((acc, e) => acc + e.pop, 0);
+
+            const scenario = {
+                id: Date.now(),
+                name: unionName,
+                ids: [...selectedIds],
+                summary: `${formatArea(totalArea)} • ${formatPop(totalPop)}`
+            };
+
+            savedScenarios.unshift(scenario);
+            try {
+                localStorage.setItem('geo_saved_scenarios', JSON.stringify(savedScenarios));
+            } catch (e) {}
+
+            renderSavedScenarios();
+            showToast(`💾 "${unionName}" সংরক্ষণ করা হয়েছে!`);
+        }
+
+        function renderSavedScenarios() {
+            const container = document.getElementById('saved-scenarios-list');
+            document.getElementById('saved-count').textContent = `${toBengaliNumber(savedScenarios.length)}টি সেভ করা`;
+
+            if (savedScenarios.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 italic">এখনো কোনো গবেষণা সংরক্ষণ করা হয়নি।</p>`;
+                return;
+            }
+
+            container.innerHTML = savedScenarios.map(sc => `
+                <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <button onclick="loadScenario(${sc.id})" class="text-left flex-1 min-w-0">
+                        <span class="font-bold text-sky-300 block truncate">${sc.name}</span>
+                        <span class="text-[11px] text-slate-400 block">${sc.summary}</span>
+                    </button>
+                    <button onclick="deleteScenario(${sc.id})" class="text-rose-400 hover:text-rose-300 px-2 py-1 rounded bg-rose-500/10">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function loadScenario(id) {
+            const sc = savedScenarios.find(s => s.id === id);
+            if (!sc) return;
+            selectedIds = sc.ids.filter(eid => allEntities.some(e => e.id === eid));
+            document.getElementById('union-name').value = sc.name;
+            renderCountryList();
+            runSimulation();
+            showToast(`📂 "${sc.name}" লোড করা হয়েছে।`);
+        }
+
+        function deleteScenario(id) {
+            savedScenarios = savedScenarios.filter(s => s.id !== id);
+            try {
+                localStorage.setItem('geo_saved_scenarios', JSON.stringify(savedScenarios));
+            } catch (e) {}
+            renderSavedScenarios();
+        }
+
+        function copyResearchReport() {
+            if (selectedIds.length === 0) return;
+            const title = document.getElementById('dash-title').textContent;
+            const members = document.getElementById('dash-members-text').textContent;
+            const area = document.getElementById('stat-area').textContent;
+            const areaRank = document.getElementById('stat-area-rank').textContent;
+            const pop = document.getElementById('stat-pop').textContent;
+            const popRank = document.getElementById('stat-pop-rank').textContent;
+            const density = document.getElementById('stat-density').textContent;
+            const gdp = document.getElementById('stat-gdp').textContent;
+            const perCapita = document.getElementById('stat-percapita').textContent;
+
+            const minerals = Array.from(document.querySelectorAll('#minerals-tags span')).map(s => s.textContent.replace('⛏️ ', '')).join(', ');
+            const agri = Array.from(document.querySelectorAll('#agri-tags span')).map(s => s.textContent.replace('🌱 ', '')).join(', ');
+
+            const reportText = `📊 ভূ-রাজনৈতিক একত্রীকরণ গবেষণা রিপোর্ট
+========================================
+🏛️ প্রস্তাবিত রাষ্ট্র: ${title}
+🌍 ${members}
+
+📐 মোট আয়তন: ${area} (${areaRank})
+👥 মোট জনসংখ্যা: ${pop} (${popRank})
+🏘️ জনসংখ্যার ঘনত্ব: ${density}/বর্গ কিমি
+💰 সম্মিলিত জিডিপি: ${gdp} (${perCapita})
+
+⛏️ খনিজ ও জ্বালানি সম্পদ:
+${minerals}
+
+🌾 কৃষি ও খাদ্য উৎপাদন:
+${agri}
+========================================`;
+
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = reportText;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
+            showToast('📋 সম্পূর্ণ গবেষণা রিপোর্ট ক্লিপবোর্ডে কপি হয়েছে!');
+        }
+
+        /* ==========================================================================
+           9. TOAST NOTIFICATION SYSTEM
+           ========================================================================== */
+        let toastTimer = null;
+        function showToast(msg) {
+            const box = document.getElementById('toast-box');
+            document.getElementById('toast-msg').textContent = msg;
+            box.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(hideToast, 4000);
+        }
+
+        function hideToast() {
+            document.getElementById('toast-box').classList.add('hidden');
+        }
+
+        /* ==========================================================================
+           10. INITIALIZE ON LOAD
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            initPWA();
+            loadState();
+            renderCountryList();
+            renderSavedScenarios();
+            runSimulation();
+        });
+    </script>
+</body>
+</html>
